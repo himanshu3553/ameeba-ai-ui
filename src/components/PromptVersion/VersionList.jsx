@@ -5,7 +5,6 @@ import VersionCard from './VersionCard';
 import VersionForm from './VersionForm';
 import Loading from '../Common/Loading';
 import ErrorMessage from '../Common/ErrorMessage';
-import { showToast } from '../../utils/toast';
 
 const VersionList = ({ promptId: propPromptId }) => {
   const { id: routePromptId } = useParams();
@@ -53,14 +52,14 @@ const VersionList = ({ promptId: propPromptId }) => {
       setFormLoading(true);
       const response = await promptVersionAPI.createVersion(promptId, formData);
       if (response.success) {
-        showToast('Version created successfully!', 'success');
+        console.log('Version created successfully!', response.data);
         setShowCreateSheet(false);
         fetchVersions();
       } else {
-        showToast(response.message || 'Failed to create version', 'error');
+        console.error('Failed to create version:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to create version', 'error');
+      console.error('Failed to create version:', err.message || err);
     } finally {
       setFormLoading(false);
     }

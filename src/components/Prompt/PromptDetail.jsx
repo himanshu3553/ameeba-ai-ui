@@ -7,7 +7,6 @@ import Breadcrumb from '../Common/Breadcrumb';
 import VersionList from '../PromptVersion/VersionList';
 import PromptForm from './PromptForm';
 import { formatDate } from '../../utils/formatDate';
-import { showToast } from '../../utils/toast';
 
 const PromptDetail = () => {
   const { id } = useParams();
@@ -46,14 +45,14 @@ const PromptDetail = () => {
       setFormLoading(true);
       const response = await promptAPI.updatePrompt(id, formData);
       if (response.success) {
-        showToast('Prompt updated successfully!', 'success');
+        console.log('Prompt updated successfully!', response.data);
         setShowEditForm(false);
         fetchPrompt();
       } else {
-        showToast(response.message || 'Failed to update prompt', 'error');
+        console.error('Failed to update prompt:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to update prompt', 'error');
+      console.error('Failed to update prompt:', err.message || err);
     } finally {
       setFormLoading(false);
     }
@@ -64,7 +63,7 @@ const PromptDetail = () => {
       setDeleteLoading(true);
       const response = await promptAPI.deletePrompt(id);
       if (response.success) {
-        showToast('Prompt deleted successfully!', 'success');
+        console.log('Prompt deleted successfully!');
         // Navigate back to project page
         if (prompt?.projectId?._id) {
           navigate(`/projects/${prompt.projectId._id}`);
@@ -74,10 +73,10 @@ const PromptDetail = () => {
           navigate('/');
         }
       } else {
-        showToast(response.message || 'Failed to delete prompt', 'error');
+        console.error('Failed to delete prompt:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to delete prompt', 'error');
+      console.error('Failed to delete prompt:', err.message || err);
     } finally {
       setDeleteLoading(false);
       setShowDeleteConfirm(false);
@@ -102,9 +101,9 @@ const PromptDetail = () => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-      showToast('API URL copied to clipboard!', 'success');
+      console.log('API URL copied to clipboard!', text);
     }).catch(() => {
-      showToast('Failed to copy to clipboard', 'error');
+      console.error('Failed to copy to clipboard');
     });
   };
 

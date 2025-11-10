@@ -7,7 +7,6 @@ import Breadcrumb from '../Common/Breadcrumb';
 import PromptList from '../Prompt/PromptList';
 import ProjectForm from './ProjectForm';
 import { formatDate } from '../../utils/formatDate';
-import { showToast } from '../../utils/toast';
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -46,14 +45,14 @@ const ProjectDetail = () => {
       setFormLoading(true);
       const response = await projectAPI.updateProject(id, formData);
       if (response.success) {
-        showToast('Project updated successfully!', 'success');
+        console.log('Project updated successfully!', response.data);
         setShowEditForm(false);
         fetchProject();
       } else {
-        showToast(response.message || 'Failed to update project', 'error');
+        console.error('Failed to update project:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to update project', 'error');
+      console.error('Failed to update project:', err.message || err);
     } finally {
       setFormLoading(false);
     }
@@ -64,13 +63,13 @@ const ProjectDetail = () => {
       setDeleteLoading(true);
       const response = await projectAPI.deleteProject(id);
       if (response.success) {
-        showToast('Project deleted successfully!', 'success');
+        console.log('Project deleted successfully!');
         navigate('/');
       } else {
-        showToast(response.message || 'Failed to delete project', 'error');
+        console.error('Failed to delete project:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to delete project', 'error');
+      console.error('Failed to delete project:', err.message || err);
     } finally {
       setDeleteLoading(false);
       setShowDeleteConfirm(false);

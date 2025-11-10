@@ -5,7 +5,6 @@ import ErrorMessage from '../Common/ErrorMessage';
 import ProjectForm from '../Project/ProjectForm';
 import PromptForm from '../Prompt/PromptForm';
 import VersionForm from '../PromptVersion/VersionForm';
-import { showToast } from '../../utils/toast';
 
 const Home = () => {
   const [projects, setProjects] = useState([]);
@@ -181,15 +180,15 @@ const Home = () => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-      showToast('API URL copied to clipboard!', 'success');
+      console.log('API URL copied to clipboard!', text);
     }).catch(() => {
-      showToast('Failed to copy to clipboard', 'error');
+      console.error('Failed to copy to clipboard');
     });
   };
 
   const handleCreatePrompt = async (formData) => {
     if (!selectedProjectId) {
-      showToast('Please select a project first', 'error');
+      console.error('Please select a project first');
       return;
     }
 
@@ -197,7 +196,7 @@ const Home = () => {
       setCreatePromptLoading(true);
       const response = await promptAPI.createPrompt(selectedProjectId, formData);
       if (response.success) {
-        showToast('Prompt created successfully!', 'success');
+        console.log('Prompt created successfully!', response.data);
         setShowCreatePromptSheet(false);
         // Refresh prompts list
         await fetchPrompts();
@@ -206,10 +205,10 @@ const Home = () => {
           setSelectedPromptId(response.data._id);
         }
       } else {
-        showToast(response.message || 'Failed to create prompt', 'error');
+        console.error('Failed to create prompt:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to create prompt', 'error');
+      console.error('Failed to create prompt:', err.message || err);
     } finally {
       setCreatePromptLoading(false);
     }
@@ -217,7 +216,7 @@ const Home = () => {
 
   const handleCreateVersion = async (formData) => {
     if (!selectedPromptId) {
-      showToast('Please select a prompt first', 'error');
+      console.error('Please select a prompt first');
       return;
     }
 
@@ -225,7 +224,7 @@ const Home = () => {
       setCreateVersionLoading(true);
       const response = await promptVersionAPI.createVersion(selectedPromptId, formData);
       if (response.success) {
-        showToast('Version created successfully!', 'success');
+        console.log('Version created successfully!', response.data);
         setShowCreateVersionSheet(false);
         // Refresh versions list
         await fetchPromptAndVersions();
@@ -234,10 +233,10 @@ const Home = () => {
           setSelectedVersionId(response.data._id);
         }
       } else {
-        showToast(response.message || 'Failed to create version', 'error');
+        console.error('Failed to create version:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to create version', 'error');
+      console.error('Failed to create version:', err.message || err);
     } finally {
       setCreateVersionLoading(false);
     }
@@ -248,7 +247,7 @@ const Home = () => {
       setCreateProjectLoading(true);
       const response = await projectAPI.createProject(formData);
       if (response.success) {
-        showToast('Project created successfully!', 'success');
+        console.log('Project created successfully!', response.data);
         setShowCreateProjectSheet(false);
         // Refresh projects list
         await fetchProjects();
@@ -257,10 +256,10 @@ const Home = () => {
           setSelectedProjectId(response.data._id);
         }
       } else {
-        showToast(response.message || 'Failed to create project', 'error');
+        console.error('Failed to create project:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to create project', 'error');
+      console.error('Failed to create project:', err.message || err);
     } finally {
       setCreateProjectLoading(false);
     }

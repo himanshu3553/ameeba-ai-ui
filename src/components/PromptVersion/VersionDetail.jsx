@@ -6,7 +6,6 @@ import ErrorMessage from '../Common/ErrorMessage';
 import Breadcrumb from '../Common/Breadcrumb';
 import VersionForm from './VersionForm';
 import { formatDate } from '../../utils/formatDate';
-import { showToast } from '../../utils/toast';
 
 const VersionDetail = () => {
   const { id } = useParams();
@@ -45,14 +44,14 @@ const VersionDetail = () => {
       setFormLoading(true);
       const response = await promptVersionAPI.updateVersion(id, formData);
       if (response.success) {
-        showToast('Version updated successfully!', 'success');
+        console.log('Version updated successfully!', response.data);
         setShowEditForm(false);
         fetchVersion();
       } else {
-        showToast(response.message || 'Failed to update version', 'error');
+        console.error('Failed to update version:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to update version', 'error');
+      console.error('Failed to update version:', err.message || err);
     } finally {
       setFormLoading(false);
     }
@@ -63,7 +62,7 @@ const VersionDetail = () => {
       setDeleteLoading(true);
       const response = await promptVersionAPI.deleteVersion(id);
       if (response.success) {
-        showToast('Version deleted successfully!', 'success');
+        console.log('Version deleted successfully!');
         // Navigate back to prompt page
         if (version?.promptId?._id) {
           navigate(`/prompts/${version.promptId._id}`);
@@ -73,10 +72,10 @@ const VersionDetail = () => {
           navigate('/');
         }
       } else {
-        showToast(response.message || 'Failed to delete version', 'error');
+        console.error('Failed to delete version:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to delete version', 'error');
+      console.error('Failed to delete version:', err.message || err);
     } finally {
       setDeleteLoading(false);
       setShowDeleteConfirm(false);

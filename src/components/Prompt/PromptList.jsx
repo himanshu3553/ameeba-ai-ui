@@ -5,7 +5,6 @@ import PromptCard from './PromptCard';
 import PromptForm from './PromptForm';
 import Loading from '../Common/Loading';
 import ErrorMessage from '../Common/ErrorMessage';
-import { showToast } from '../../utils/toast';
 
 const PromptList = ({ projectId: propProjectId, showCreateButton = true }) => {
   const { id: routeProjectId } = useParams();
@@ -44,14 +43,14 @@ const PromptList = ({ projectId: propProjectId, showCreateButton = true }) => {
       setFormLoading(true);
       const response = await promptAPI.createPrompt(projectId, formData);
       if (response.success) {
-        showToast('Prompt created successfully!', 'success');
+        console.log('Prompt created successfully!', response.data);
         setShowForm(false);
         fetchPrompts();
       } else {
-        showToast(response.message || 'Failed to create prompt', 'error');
+        console.error('Failed to create prompt:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to create prompt', 'error');
+      console.error('Failed to create prompt:', err.message || err);
     } finally {
       setFormLoading(false);
     }

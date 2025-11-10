@@ -4,7 +4,6 @@ import ProjectCard from './ProjectCard';
 import ProjectForm from './ProjectForm';
 import Loading from '../Common/Loading';
 import ErrorMessage from '../Common/ErrorMessage';
-import { showToast } from '../../utils/toast';
 
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
@@ -39,14 +38,14 @@ const ProjectList = () => {
       setFormLoading(true);
       const response = await projectAPI.createProject(formData);
       if (response.success) {
-        showToast('Project created successfully!', 'success');
+        console.log('Project created successfully!', response.data);
         setShowCreateSheet(false);
         fetchProjects();
       } else {
-        showToast(response.message || 'Failed to create project', 'error');
+        console.error('Failed to create project:', response.message || 'Unknown error');
       }
     } catch (err) {
-      showToast(err.message || 'Failed to create project', 'error');
+      console.error('Failed to create project:', err.message || err);
     } finally {
       setFormLoading(false);
     }
