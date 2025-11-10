@@ -15,7 +15,7 @@ const ProjectCard = ({ project }) => {
           <p className="card-text text-muted small mb-3">
             Created: {formatDate(project.createdAt)}
           </p>
-          <Link to={`/projects/${project._id}`} className="btn btn-primary btn-sm">
+          <Link to={`/projects/${project._id}`} className="text-decoration-none text-primary">
             View Details
           </Link>
         </div>

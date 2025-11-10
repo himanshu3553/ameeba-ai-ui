@@ -31,7 +31,7 @@ const VersionCard = ({ version }) => {
           <p className="card-text text-muted small mb-3">
             Created: {formatDate(version.createdAt)}
           </p>
-          <Link to={`/versions/${version._id}`} className="btn btn-primary btn-sm">
+          <Link to={`/versions/${version._id}`} className="text-decoration-none text-primary">
             View Details
           </Link>
         </div>

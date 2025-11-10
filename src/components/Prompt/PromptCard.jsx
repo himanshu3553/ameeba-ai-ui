@@ -15,7 +15,7 @@ const PromptCard = ({ prompt }) => {
           <p className="card-text text-muted small mb-3">
             Created: {formatDate(prompt.createdAt)}
           </p>
-          <Link to={`/prompts/${prompt._id}`} className="btn btn-primary btn-sm">
+          <Link to={`/prompts/${prompt._id}`} className="text-decoration-none text-primary">
             View Details
           </Link>
         </div>

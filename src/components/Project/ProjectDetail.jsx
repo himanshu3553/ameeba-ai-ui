@@ -101,10 +101,11 @@ const ProjectDetail = () => {
       <div className="card mb-4">
         <div className="card-header d-flex justify-content-between align-items-center">
           <h4 className="mb-0">{project.name}</h4>
-          <div className="btn-group">
+          <div className="d-flex gap-3">
             <button
-              className="btn btn-sm btn-outline-primary"
+              className="btn btn-link text-primary p-0 text-decoration-none"
               onClick={() => setShowEditForm(!showEditForm)}
+              style={{ border: 'none', background: 'none' }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -119,8 +120,9 @@ const ProjectDetail = () => {
               Edit
             </button>
             <button
-              className="btn btn-sm btn-outline-danger"
+              className="btn btn-link text-danger p-0 text-decoration-none"
               onClick={() => setShowDeleteConfirm(true)}
+              style={{ border: 'none', background: 'none' }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -195,17 +197,19 @@ const ProjectDetail = () => {
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-link text-secondary p-0 text-decoration-none"
                   onClick={() => setShowDeleteConfirm(false)}
                   disabled={deleteLoading}
+                  style={{ border: 'none', background: 'none' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  className="btn btn-danger"
+                  className="btn btn-link text-danger p-0 text-decoration-none"
                   onClick={handleDelete}
                   disabled={deleteLoading}
+                  style={{ border: 'none', background: 'none' }}
                 >
                   {deleteLoading ? (
                     <>

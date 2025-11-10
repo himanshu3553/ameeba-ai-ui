@@ -64,7 +64,7 @@ const ProjectList = () => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Projects</h2>
-        <button className="btn btn-primary" onClick={() => setShowCreateSheet(true)}>
+        <button className="btn btn-link text-primary p-0 text-decoration-none" onClick={() => setShowCreateSheet(true)} style={{ border: 'none', background: 'none' }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

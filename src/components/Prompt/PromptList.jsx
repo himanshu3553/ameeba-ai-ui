@@ -70,7 +70,7 @@ const PromptList = ({ projectId: propProjectId, showCreateButton = true }) => {
       <div className={`d-flex ${showCreateButton ? 'justify-content-between' : ''} align-items-center mb-3`}>
         <h5 className="mb-0">Prompts</h5>
         {showCreateButton && (
-          <button className="btn btn-sm btn-primary" onClick={() => setShowForm(true)}>
+          <button className="btn btn-link text-primary p-0 text-decoration-none" onClick={() => setShowForm(true)} style={{ border: 'none', background: 'none' }}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"

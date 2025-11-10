@@ -71,8 +71,8 @@ const ProjectForm = ({ project, onSubmit, onCancel, isLoading }) => {
         {errors.name && <div className="invalid-feedback">{errors.name}</div>}
       </div>
 
-      <div className="d-flex justify-content-end gap-2">
-        <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={isLoading}>
+      <div className="d-flex justify-content-end gap-3">
+        <button type="button" className="btn btn-link text-secondary p-0 text-decoration-none" onClick={onCancel} disabled={isLoading} style={{ border: 'none', background: 'none' }}>
           Cancel
         </button>
         <button type="submit" className="btn btn-primary" disabled={isLoading}>

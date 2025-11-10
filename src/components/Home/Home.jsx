@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { projectAPI, promptAPI, promptVersionAPI } from '../../services/api';
+import { projectAPI, promptAPI, promptVersionAPI, API_BASE_URL } from '../../services/api';
 import Loading from '../Common/Loading';
 import ErrorMessage from '../Common/ErrorMessage';
 import ProjectForm from '../Project/ProjectForm';
@@ -179,6 +179,14 @@ const Home = () => {
     setSelectedVersionId(versionId);
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('API URL copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Failed to copy to clipboard', 'error');
+    });
+  };
+
   const handleCreatePrompt = async (formData) => {
     if (!selectedProjectId) {
       showToast('Please select a project first', 'error');
@@ -276,8 +284,9 @@ const Home = () => {
           <div className="text-center">
             <h4 className="mb-3">No projects found</h4>
             <button
-              className="btn btn-primary btn-lg"
+              className="btn btn-link text-primary p-0 text-decoration-none"
               onClick={() => setShowCreateProjectSheet(true)}
+              style={{ border: 'none', background: 'none', fontSize: '1.1rem' }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -394,7 +403,7 @@ const Home = () => {
         {/* Left Column - Prompt List */}
         <div className="border-end bg-white" style={{ width: '300px', overflowY: 'auto' }}>
           <div className="p-3 border-bottom">
-            <h5 className="mb-0">Prompt List</h5>
+            <h5 className="mb-0">Prompts</h5>
           </div>
           {promptsLoading ? (
             <div className="p-3 text-center">
@@ -451,9 +460,10 @@ const Home = () => {
               {/* Always show Create button at the bottom */}
               <div className="p-3 border-top">
                 <button
-                  className="btn btn-primary w-100"
+                  className="btn btn-link text-primary p-0 text-decoration-none w-100 text-center"
                   onClick={() => setShowCreatePromptSheet(true)}
                   disabled={!selectedProjectId}
+                  style={{ border: 'none', background: 'none' }}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -479,6 +489,38 @@ const Home = () => {
             <>
               <div className="p-3 border-bottom">
                 <h5 className="mb-0">{selectedPrompt.name}</h5>
+                {selectedPromptId && (
+                  <div className="mt-2">
+                    <div className="input-group input-group-sm">
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        value={`${API_BASE_URL}/api/prompts/${selectedPromptId}/active`}
+                        readOnly
+                        style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}
+                      />
+                      <button
+                        className="btn btn-link text-secondary p-0 text-decoration-none"
+                        type="button"
+                        onClick={() => copyToClipboard(`${API_BASE_URL}/api/prompts/${selectedPromptId}/active`)}
+                        title="Copy to clipboard"
+                        style={{ border: 'none', background: 'none' }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          fill="currentColor"
+                          className="bi bi-clipboard"
+                          viewBox="0 0 16 16"
+                        >
+                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               {versionsLoading ? (
                 <div className="p-3 text-center">
@@ -544,9 +586,10 @@ const Home = () => {
                   {/* Always show Create button at the bottom */}
                   <div className="p-3 border-top">
                     <button
-                      className="btn btn-primary w-100"
+                      className="btn btn-link text-primary p-0 text-decoration-none w-100 text-center"
                       onClick={() => setShowCreateVersionSheet(true)}
                       disabled={!selectedPromptId}
+                      style={{ border: 'none', background: 'none' }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -575,9 +618,14 @@ const Home = () => {
           {selectedVersion ? (
             <>
               <div className="p-3 border-bottom">
-                <h5 className="mb-0">
-                  {selectedVersion.versionName || selectedVersion.version}
-                </h5>
+                <div className="d-flex align-items-center gap-2">
+                  <h5 className="mb-0">
+                    {selectedVersion.versionName || selectedVersion.version}
+                  </h5>
+                  {selectedVersion.activePrompt && (
+                    <span className="badge bg-success">Active Prompt Version</span>
+                  )}
+                </div>
               </div>
               {versionLoading ? (
                 <div className="p-3 text-center">
@@ -600,11 +648,6 @@ const Home = () => {
                   >
                     {selectedVersion.promptText || 'No prompt text available'}
                   </div>
-                  {selectedVersion.activePrompt && (
-                    <div className="mt-3">
-                      <span className="badge bg-success">Active Prompt Version</span>
-                    </div>
-                  )}
                 </div>
               )}
             </>

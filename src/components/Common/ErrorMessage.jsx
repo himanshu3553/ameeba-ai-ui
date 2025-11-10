@@ -15,7 +15,7 @@ const ErrorMessage = ({ message, onRetry }) => {
         <strong>Error:</strong> {message || 'An unexpected error occurred'}
       </div>
       {onRetry && (
-        <button className="btn btn-sm btn-outline-danger ms-3" onClick={onRetry}>
+        <button className="btn btn-link text-danger p-0 ms-3 text-decoration-none" onClick={onRetry} style={{ border: 'none', background: 'none' }}>
           Retry
         </button>
       )}

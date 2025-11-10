@@ -86,7 +86,7 @@ const VersionList = ({ promptId: propPromptId }) => {
 
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Versions</h5>
-        <button className="btn btn-sm btn-primary" onClick={() => setShowCreateSheet(true)}>
+        <button className="btn btn-link text-primary p-0 text-decoration-none" onClick={() => setShowCreateSheet(true)} style={{ border: 'none', background: 'none' }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
