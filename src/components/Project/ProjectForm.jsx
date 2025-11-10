@@ -42,7 +42,12 @@ const ProjectForm = ({ project, onSubmit, onCancel, isLoading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      onSubmit(formData);
+      // For new projects, include isActive: true
+      // For updates, only send name (isActive is managed by soft delete)
+      const submitData = project 
+        ? { name: formData.name }
+        : { name: formData.name, isActive: true };
+      onSubmit(submitData);
     }
   };
 
@@ -64,20 +69,6 @@ const ProjectForm = ({ project, onSubmit, onCancel, isLoading }) => {
           required
         />
         {errors.name && <div className="invalid-feedback">{errors.name}</div>}
-      </div>
-
-      <div className="mb-3 form-check">
-        <input
-          type="checkbox"
-          className="form-check-input"
-          id="isActive"
-          name="isActive"
-          checked={formData.isActive}
-          onChange={handleChange}
-        />
-        <label className="form-check-label" htmlFor="isActive">
-          Active
-        </label>
       </div>
 
       <div className="d-flex justify-content-end gap-2">

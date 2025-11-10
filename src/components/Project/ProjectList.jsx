@@ -10,7 +10,7 @@ const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showCreateSheet, setShowCreateSheet] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
   const fetchProjects = async () => {
@@ -40,7 +40,7 @@ const ProjectList = () => {
       const response = await projectAPI.createProject(formData);
       if (response.success) {
         showToast('Project created successfully!', 'success');
-        setShowForm(false);
+        setShowCreateSheet(false);
         fetchProjects();
       } else {
         showToast(response.message || 'Failed to create project', 'error');
@@ -64,7 +64,7 @@ const ProjectList = () => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Projects</h2>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+        <button className="btn btn-primary" onClick={() => setShowCreateSheet(true)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -80,27 +80,6 @@ const ProjectList = () => {
         </button>
       </div>
 
-      {showForm && (
-        <div className="card mb-4">
-          <div className="card-header d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">Create New Project</h5>
-            <button
-              type="button"
-              className="btn-close"
-              onClick={() => setShowForm(false)}
-              aria-label="Close"
-            ></button>
-          </div>
-          <div className="card-body">
-            <ProjectForm
-              onSubmit={handleCreate}
-              onCancel={() => setShowForm(false)}
-              isLoading={formLoading}
-            />
-          </div>
-        </div>
-      )}
-
       {projects.length === 0 ? (
         <div className="text-center py-5">
           <p className="text-muted">No projects found. Create your first project to get started!</p>
@@ -112,6 +91,66 @@ const ProjectList = () => {
           ))}
         </div>
       )}
+
+      {/* Side Sheet for Creating Project */}
+      {showCreateSheet && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 1040,
+            }}
+            onClick={() => setShowCreateSheet(false)}
+          />
+          {/* Side Sheet */}
+          <div
+            className="position-fixed top-0 end-0 h-100 bg-white shadow-lg"
+            style={{
+              width: '500px',
+              maxWidth: '90vw',
+              zIndex: 1050,
+              overflowY: 'auto',
+              animation: 'slideInRight 0.3s ease-out',
+            }}
+          >
+            <div className="d-flex flex-column h-100">
+              {/* Header */}
+              <div className="border-bottom p-3 d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">Create a Project</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowCreateSheet(false)}
+                  aria-label="Close"
+                />
+              </div>
+
+              {/* Body */}
+              <div className="flex-grow-1 p-4">
+                <ProjectForm
+                  onSubmit={handleCreate}
+                  onCancel={() => setShowCreateSheet(false)}
+                  isLoading={formLoading}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* CSS Animation */}
+      <style>{`
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };

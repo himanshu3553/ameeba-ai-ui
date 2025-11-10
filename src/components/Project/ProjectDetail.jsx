@@ -169,11 +169,7 @@ const ProjectDetail = () => {
         </div>
       </div>
 
-      <div className="mb-3">
-        <h5>Prompts</h5>
-      </div>
-
-      <PromptList projectId={id} />
+      <PromptList projectId={id} showCreateButton={false} />
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (

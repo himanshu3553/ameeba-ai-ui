@@ -42,7 +42,19 @@ const VersionForm = ({ version, onSubmit, onCancel, isLoading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      onSubmit(formData);
+      // For new versions, include isActive: true
+      // For updates, only send promptText and activePrompt (isActive is managed by soft delete)
+      const submitData = version
+        ? {
+            promptText: formData.promptText,
+            activePrompt: formData.activePrompt,
+          }
+        : {
+            promptText: formData.promptText,
+            activePrompt: formData.activePrompt,
+            isActive: true,
+          };
+      onSubmit(submitData);
     }
   };
 
@@ -79,20 +91,6 @@ const VersionForm = ({ version, onSubmit, onCancel, isLoading }) => {
           <small className="text-muted d-block">
             (This will deactivate other versions of this prompt)
           </small>
-        </label>
-      </div>
-
-      <div className="mb-3 form-check">
-        <input
-          type="checkbox"
-          className="form-check-input"
-          id="isActive"
-          name="isActive"
-          checked={formData.isActive}
-          onChange={handleChange}
-        />
-        <label className="form-check-label" htmlFor="isActive">
-          Active
         </label>
       </div>
 

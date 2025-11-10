@@ -14,7 +14,7 @@ const VersionList = ({ promptId: propPromptId }) => {
   const [activeVersion, setActiveVersion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showCreateSheet, setShowCreateSheet] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
   const fetchVersions = async () => {
@@ -54,7 +54,7 @@ const VersionList = ({ promptId: propPromptId }) => {
       const response = await promptVersionAPI.createVersion(promptId, formData);
       if (response.success) {
         showToast('Version created successfully!', 'success');
-        setShowForm(false);
+        setShowCreateSheet(false);
         fetchVersions();
       } else {
         showToast(response.message || 'Failed to create version', 'error');
@@ -86,7 +86,7 @@ const VersionList = ({ promptId: propPromptId }) => {
 
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Versions</h5>
-        <button className="btn btn-sm btn-primary" onClick={() => setShowForm(true)}>
+        <button className="btn btn-sm btn-primary" onClick={() => setShowCreateSheet(true)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -102,27 +102,6 @@ const VersionList = ({ promptId: propPromptId }) => {
         </button>
       </div>
 
-      {showForm && (
-        <div className="card mb-4">
-          <div className="card-header d-flex justify-content-between align-items-center">
-            <h6 className="mb-0">Create New Version</h6>
-            <button
-              type="button"
-              className="btn-close"
-              onClick={() => setShowForm(false)}
-              aria-label="Close"
-            ></button>
-          </div>
-          <div className="card-body">
-            <VersionForm
-              onSubmit={handleCreate}
-              onCancel={() => setShowForm(false)}
-              isLoading={formLoading}
-            />
-          </div>
-        </div>
-      )}
-
       {versions.length === 0 ? (
         <div className="text-center py-4">
           <p className="text-muted">No versions found. Create your first version to get started!</p>
@@ -134,6 +113,66 @@ const VersionList = ({ promptId: propPromptId }) => {
           ))}
         </div>
       )}
+
+      {/* Side Sheet for Creating Version */}
+      {showCreateSheet && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 1040,
+            }}
+            onClick={() => setShowCreateSheet(false)}
+          />
+          {/* Side Sheet */}
+          <div
+            className="position-fixed top-0 end-0 h-100 bg-white shadow-lg"
+            style={{
+              width: '500px',
+              maxWidth: '90vw',
+              zIndex: 1050,
+              overflowY: 'auto',
+              animation: 'slideInRight 0.3s ease-out',
+            }}
+          >
+            <div className="d-flex flex-column h-100">
+              {/* Header */}
+              <div className="border-bottom p-3 d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">Create a new Version</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowCreateSheet(false)}
+                  aria-label="Close"
+                />
+              </div>
+
+              {/* Body */}
+              <div className="flex-grow-1 p-4">
+                <VersionForm
+                  onSubmit={handleCreate}
+                  onCancel={() => setShowCreateSheet(false)}
+                  isLoading={formLoading}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* CSS Animation */}
+      <style>{`
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };

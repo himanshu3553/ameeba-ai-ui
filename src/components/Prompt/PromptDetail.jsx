@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { promptAPI } from '../../services/api';
+import { promptAPI, API_BASE_URL } from '../../services/api';
 import Loading from '../Common/Loading';
 import ErrorMessage from '../Common/ErrorMessage';
 import Breadcrumb from '../Common/Breadcrumb';
@@ -98,6 +98,15 @@ const PromptDetail = () => {
 
   const projectId = prompt.projectId?._id || prompt.projectId;
   const projectName = prompt.projectId?.name || 'Project';
+  const activeVersionApiUrl = `${API_BASE_URL}/api/prompts/${id}/active`;
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('API URL copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Failed to copy to clipboard', 'error');
+    });
+  };
 
   return (
     <div>
@@ -179,13 +188,44 @@ const PromptDetail = () => {
                   <strong>Last Updated:</strong> {formatDate(prompt.updatedAt)}
                 </div>
               </div>
+              <div className="row mt-3">
+                <div className="col-12">
+                  <strong>Active Version API URL:</strong>
+                  <div className="input-group mt-2">
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={activeVersionApiUrl}
+                      readOnly
+                      style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}
+                    />
+                    <button
+                      className="btn btn-outline-secondary"
+                      type="button"
+                      onClick={() => copyToClipboard(activeVersionApiUrl)}
+                      title="Copy to clipboard"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        className="bi bi-clipboard"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <small className="text-muted">
+                    Use this endpoint to retrieve the active version of this prompt
+                  </small>
+                </div>
+              </div>
             </>
           )}
         </div>
-      </div>
-
-      <div className="mb-3">
-        <h5>Versions</h5>
       </div>
 
       <VersionList promptId={id} />
