@@ -20,6 +20,7 @@ const Home = () => {
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [pendingToggleVersion, setPendingToggleVersion] = useState(null);
   const [pendingToggleState, setPendingToggleState] = useState(null);
+  const [copiedPromptId, setCopiedPromptId] = useState(null);
   const [promptsLoading, setPromptsLoading] = useState(false);
   const [versionsLoading, setVersionsLoading] = useState(false);
   const [versionLoading, setVersionLoading] = useState(false);
@@ -255,9 +256,15 @@ const Home = () => {
     setPendingToggleState(null);
   };
 
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (text, promptId) => {
     navigator.clipboard.writeText(text).then(() => {
       console.log('API URL copied to clipboard!', text);
+      // Show confirmation message
+      setCopiedPromptId(promptId);
+      // Clear confirmation after 2 seconds
+      setTimeout(() => {
+        setCopiedPromptId(null);
+      }, 2000);
     }).catch(() => {
       console.error('Failed to copy to clipboard');
     });
@@ -450,8 +457,8 @@ const Home = () => {
         <div className="d-flex align-items-center">
           <select
             id="project-select"
-            className="form-select form-select-lg"
-            style={{ width: 'auto', minWidth: '250px', maxWidth: '400px' }}
+            className="form-select form-select-sm"
+            style={{ width: 'auto', minWidth: '180px', maxWidth: '250px' }}
             value={selectedProjectId || ''}
             onChange={handleProjectChange}
           >
@@ -472,7 +479,7 @@ const Home = () => {
       <div className="flex-grow-1 d-flex" style={{ overflow: 'hidden' }}>
         {/* Left Column - Prompt List */}
         <div className="border-end bg-white" style={{ width: '330px', minWidth: '330px', maxWidth: '330px', flexShrink: 0, overflowY: 'auto' }}>
-          <div className="p-3 border-bottom">
+          <div className="p-3 border-bottom" style={{ height: '57px', display: 'flex', alignItems: 'center' }}>
             <h5 className="mb-0">Prompts</h5>
           </div>
           {promptsLoading ? (
@@ -489,7 +496,7 @@ const Home = () => {
             <>
               {prompts.length > 0 ? (
                 <div className="list-group list-group-flush">
-                  {prompts.map((prompt) => (
+                  {prompts.map((prompt, index) => (
                     <button
                       key={prompt._id}
                       type="button"
@@ -499,10 +506,24 @@ const Home = () => {
                         cursor: 'pointer',
                         borderLeft: selectedPromptId === prompt._id ? '3px solid #6c757d' : '3px solid transparent',
                         backgroundColor: selectedPromptId === prompt._id ? '#f8f9fa' : 'transparent',
+                        padding: '0.75rem 1rem',
+                        minHeight: '80px',
+                        position: 'relative',
                       }}
                     >
                       <div className="d-flex justify-content-between align-items-center">
-                        <span>{prompt.name}</span>
+                        <span
+                          style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            flex: 1,
+                            marginRight: '0.5rem'
+                          }}
+                          title={prompt.name}
+                        >
+                          {prompt.name}
+                        </span>
                         {selectedPromptId === prompt._id && (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -519,6 +540,18 @@ const Home = () => {
                           </svg>
                         )}
                       </div>
+                      {index < prompts.length - 1 && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: '1rem',
+                            right: '1rem',
+                            height: '1px',
+                            backgroundColor: '#dee2e6',
+                          }}
+                        />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -558,36 +591,57 @@ const Home = () => {
           {selectedPrompt ? (
             <>
               <div className="p-3 border-bottom">
-                <h5 className="mb-0">{selectedPrompt.name}</h5>
+                <h5 className="mb-0">Prompt Versions</h5>
                 {selectedPromptId && (
                   <div className="mt-2">
-                    <div className="input-group input-group-sm">
+                    <div className="d-flex align-items-center gap-2">
                       <input
                         type="text"
                         className="form-control form-control-sm"
                         value={`${API_BASE_URL}/api/prompts/${selectedPromptId}/active`}
                         readOnly
-                        style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}
+                        style={{ fontFamily: 'monospace', fontSize: '0.7rem', padding: '0.15rem 0.35rem', height: '22px', flex: 1 }}
                       />
-                      <button
-                        className="btn btn-link text-secondary p-0 text-decoration-none"
-                        type="button"
-                        onClick={() => copyToClipboard(`${API_BASE_URL}/api/prompts/${selectedPromptId}/active`)}
-                        title="Copy to clipboard"
-                        style={{ border: 'none', background: 'none' }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="14"
-                          height="14"
-                          fill="currentColor"
-                          className="bi bi-clipboard"
-                          viewBox="0 0 16 16"
+                      <div className="position-relative">
+                        <button
+                          className="btn btn-link text-secondary p-0 text-decoration-none d-flex align-items-center justify-content-center"
+                          type="button"
+                          onClick={() => copyToClipboard(`${API_BASE_URL}/api/prompts/${selectedPromptId}/active`, selectedPromptId)}
+                          title="Copy to clipboard"
+                          style={{ border: 'none', background: 'none', padding: '0.25rem', width: '24px', height: '24px', minWidth: '24px' }}
                         >
-                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-                          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-                        </svg>
-                      </button>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            fill="currentColor"
+                            className="bi bi-clipboard"
+                            viewBox="0 0 16 16"
+                          >
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                          </svg>
+                        </button>
+                        {copiedPromptId === selectedPromptId && (
+                          <div
+                            className="position-absolute"
+                            style={{
+                              top: '-30px',
+                              right: '0',
+                              backgroundColor: '#28a745',
+                              color: 'white',
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '0.75rem',
+                              whiteSpace: 'nowrap',
+                              zIndex: 1000,
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            Prompt URL copied
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -602,7 +656,7 @@ const Home = () => {
                 <>
                   {versions.length > 0 ? (
                     <div className="list-group list-group-flush">
-                      {versions.map((version) => (
+                      {versions.map((version, index) => (
                         <button
                           key={version._id}
                           type="button"
@@ -613,20 +667,33 @@ const Home = () => {
                             borderLeft:
                               selectedVersionId === version._id ? '3px solid #6c757d' : '3px solid transparent',
                             backgroundColor: selectedVersionId === version._id ? '#f8f9fa' : 'transparent',
+                            padding: '0.75rem 1rem',
+                            minHeight: '80px',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            width: '100%',
                           }}
                         >
-                          <div className="d-flex justify-content-between align-items-start">
-                            <div className="flex-grow-1">
+                          <div className="d-flex justify-content-between align-items-start" style={{ width: '100%', minWidth: 0 }}>
+                            <div className="flex-grow-1" style={{ minWidth: 0, overflow: 'hidden' }}>
                               <div className="fw-semibold d-flex align-items-center gap-2">
                                 {version.versionName || version.version}
                                 {version.activePrompt && (
                                   <span className="badge bg-success">Active</span>
                                 )}
                               </div>
-                              <div className="text-muted small mt-1" style={{ fontSize: '0.85rem' }}>
-                                {version.promptText.length > 50
-                                  ? version.promptText.substring(0, 50) + '...'
-                                  : version.promptText}
+                              <div 
+                                className="text-muted small mt-1" 
+                                style={{ 
+                                  fontSize: '0.85rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  width: '100%'
+                                }}
+                                title={version.promptText}
+                              >
+                                {version.promptText}
                               </div>
                             </div>
                             {selectedVersionId === version._id && (
@@ -637,6 +704,7 @@ const Home = () => {
                                 fill="currentColor"
                                 className="bi bi-chevron-right ms-2"
                                 viewBox="0 0 16 16"
+                                style={{ flexShrink: 0 }}
                               >
                                 <path
                                   fillRule="evenodd"
@@ -645,6 +713,18 @@ const Home = () => {
                               </svg>
                             )}
                           </div>
+                          {index < versions.length - 1 && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                bottom: 0,
+                                left: '1rem',
+                                right: '1rem',
+                                height: '1px',
+                                backgroundColor: '#dee2e6',
+                              }}
+                            />
+                          )}
                         </button>
                       ))}
                     </div>
@@ -687,8 +767,8 @@ const Home = () => {
         <div className="flex-grow-1 bg-white" style={{ minWidth: 0, overflowY: 'auto' }}>
           {selectedVersion ? (
             <>
-              <div className="p-3 border-bottom">
-                <div className="d-flex align-items-center justify-content-between gap-2">
+              <div className="p-3 border-bottom" style={{ height: '57px', display: 'flex', alignItems: 'center' }}>
+                <div className="d-flex align-items-center justify-content-between gap-2 w-100">
                   <div className="d-flex align-items-center gap-2">
                     <h5 className="mb-0">
                       {selectedVersion.versionName || selectedVersion.version}
