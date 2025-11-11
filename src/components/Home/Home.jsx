@@ -16,6 +16,10 @@ const Home = () => {
   const [selectedVersionId, setSelectedVersionId] = useState(null);
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [togglingVersionId, setTogglingVersionId] = useState(null);
+  const [showToggleConfirm, setShowToggleConfirm] = useState(false);
+  const [pendingToggleVersion, setPendingToggleVersion] = useState(null);
+  const [pendingToggleState, setPendingToggleState] = useState(null);
   const [promptsLoading, setPromptsLoading] = useState(false);
   const [versionsLoading, setVersionsLoading] = useState(false);
   const [versionLoading, setVersionLoading] = useState(false);
@@ -176,6 +180,79 @@ const Home = () => {
 
   const handleVersionClick = (versionId) => {
     setSelectedVersionId(versionId);
+  };
+
+  const handleToggleActive = (versionId, e) => {
+    e.stopPropagation(); // Prevent triggering the version click handler
+    e.preventDefault(); // Prevent default checkbox toggle
+    
+    // Get current state from selectedVersion or versions list
+    const currentVersion = selectedVersionId === versionId 
+      ? selectedVersion 
+      : versions.find(v => v._id === versionId);
+    const currentActiveState = currentVersion?.activePrompt || false;
+    const newActiveState = !currentActiveState;
+    
+    // Store pending toggle info and show confirmation
+    setPendingToggleVersion(versionId);
+    setPendingToggleState(newActiveState);
+    setShowToggleConfirm(true);
+  };
+
+  const confirmToggleActive = async () => {
+    if (!pendingToggleVersion) return;
+    
+    const versionId = pendingToggleVersion;
+    const newActiveState = pendingToggleState;
+    
+    // Set loading state for this specific toggle (keep modal open)
+    setTogglingVersionId(versionId);
+    
+    // Preserve the currently selected version ID
+    const preservedSelectedVersionId = selectedVersionId;
+    
+    try {
+      const response = await promptVersionAPI.updateVersion(versionId, {
+        activePrompt: newActiveState,
+      });
+      if (response.success) {
+        console.log('Version active status updated successfully!', response.data);
+        // Refresh versions list to get accurate state
+        const versionsResponse = await promptVersionAPI.getVersions(selectedPromptId);
+        if (versionsResponse.success) {
+          const versionsData = versionsResponse.data || [];
+          setVersions(versionsData);
+          // Restore the previously selected version
+          if (preservedSelectedVersionId) {
+            setSelectedVersionId(preservedSelectedVersionId);
+            // Fetch the updated version details
+            const versionResponse = await promptVersionAPI.getVersion(preservedSelectedVersionId);
+            if (versionResponse.success) {
+              setSelectedVersion(versionResponse.data);
+            }
+          }
+        }
+        // Close modal only after successful API call
+        setShowToggleConfirm(false);
+      } else {
+        console.error('Failed to update version active status:', response.message || 'Unknown error');
+        // Keep modal open on error so user can see the error or try again
+      }
+    } catch (err) {
+      console.error('Failed to update version active status:', err.message || err);
+      // Keep modal open on error so user can see the error or try again
+    } finally {
+      // Clear loading state and pending toggle
+      setTogglingVersionId(null);
+      setPendingToggleVersion(null);
+      setPendingToggleState(null);
+    }
+  };
+
+  const cancelToggleActive = () => {
+    setShowToggleConfirm(false);
+    setPendingToggleVersion(null);
+    setPendingToggleState(null);
   };
 
   const copyToClipboard = (text) => {
@@ -370,37 +447,31 @@ const Home = () => {
     <div className="d-flex flex-column" style={{ height: 'calc(100vh - 56px)' }}>
       {/* Header */}
       <div className="border-bottom bg-white p-3">
-        <div className="d-flex align-items-center justify-content-between">
-          <h3 className="mb-0">{selectedProject?.name || 'Ameeba AI'}</h3>
-          <div className="d-flex align-items-center gap-2">
-            <label htmlFor="project-select" className="mb-0">
-              Project Name:
-            </label>
-            <select
-              id="project-select"
-              className="form-select form-select-sm"
-              style={{ width: 'auto', minWidth: '200px' }}
-              value={selectedProjectId || ''}
-              onChange={handleProjectChange}
-            >
-              <option value="">Select a project</option>
-              {projects.map((project) => (
-                <option key={project._id} value={project._id}>
-                  {project.name}
-                </option>
-              ))}
-              <option value="create-project" style={{ fontStyle: 'italic' }}>
-                + Create a Project
+        <div className="d-flex align-items-center">
+          <select
+            id="project-select"
+            className="form-select form-select-lg"
+            style={{ width: 'auto', minWidth: '250px', maxWidth: '400px' }}
+            value={selectedProjectId || ''}
+            onChange={handleProjectChange}
+          >
+            <option value="">Select a project</option>
+            {projects.map((project) => (
+              <option key={project._id} value={project._id}>
+                {project.name}
               </option>
-            </select>
-          </div>
+            ))}
+            <option value="create-project" style={{ fontStyle: 'italic' }}>
+              + Create a Project
+            </option>
+          </select>
         </div>
       </div>
 
       {/* Main Content - Three Columns */}
       <div className="flex-grow-1 d-flex" style={{ overflow: 'hidden' }}>
         {/* Left Column - Prompt List */}
-        <div className="border-end bg-white" style={{ width: '300px', overflowY: 'auto' }}>
+        <div className="border-end bg-white" style={{ width: '330px', minWidth: '330px', maxWidth: '330px', flexShrink: 0, overflowY: 'auto' }}>
           <div className="p-3 border-bottom">
             <h5 className="mb-0">Prompts</h5>
           </div>
@@ -453,7 +524,7 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="p-3 text-center text-muted">
-                  <small>No prompts yet</small>
+                  <small>No prompts found</small>
                 </div>
               )}
               {/* Always show Create button at the bottom */}
@@ -483,7 +554,7 @@ const Home = () => {
         </div>
 
         {/* Middle Column - Version List */}
-        <div className="border-end bg-white" style={{ width: '350px', overflowY: 'auto' }}>
+        <div className="border-end bg-white" style={{ width: '385px', minWidth: '385px', maxWidth: '385px', flexShrink: 0, overflowY: 'auto' }}>
           {selectedPrompt ? (
             <>
               <div className="p-3 border-bottom">
@@ -546,17 +617,17 @@ const Home = () => {
                         >
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
-                              <div className="fw-semibold">
-                                {version.versionName || version.version} ({version.version})
+                              <div className="fw-semibold d-flex align-items-center gap-2">
+                                {version.versionName || version.version}
+                                {version.activePrompt && (
+                                  <span className="badge bg-success">Active</span>
+                                )}
                               </div>
                               <div className="text-muted small mt-1" style={{ fontSize: '0.85rem' }}>
                                 {version.promptText.length > 50
                                   ? version.promptText.substring(0, 50) + '...'
                                   : version.promptText}
                               </div>
-                              {version.activePrompt && (
-                                <span className="badge bg-success mt-1">Active</span>
-                              )}
                             </div>
                             {selectedVersionId === version._id && (
                               <svg
@@ -579,7 +650,7 @@ const Home = () => {
                     </div>
                   ) : (
                     <div className="p-3 text-center text-muted">
-                      <small>No versions yet</small>
+                      <small>No versions found</small>
                     </div>
                   )}
                   {/* Always show Create button at the bottom */}
@@ -613,17 +684,36 @@ const Home = () => {
         </div>
 
         {/* Right Column - Prompt Text */}
-        <div className="flex-grow-1 bg-white" style={{ overflowY: 'auto' }}>
+        <div className="flex-grow-1 bg-white" style={{ minWidth: 0, overflowY: 'auto' }}>
           {selectedVersion ? (
             <>
               <div className="p-3 border-bottom">
-                <div className="d-flex align-items-center gap-2">
-                  <h5 className="mb-0">
-                    {selectedVersion.versionName || selectedVersion.version}
-                  </h5>
-                  {selectedVersion.activePrompt && (
-                    <span className="badge bg-success">Active Prompt Version</span>
-                  )}
+                <div className="d-flex align-items-center justify-content-between gap-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <h5 className="mb-0">
+                      {selectedVersion.versionName || selectedVersion.version}
+                    </h5>
+                    {selectedVersion.activePrompt && (
+                      <span className="badge bg-success">Active Prompt Version</span>
+                    )}
+                  </div>
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id={`toggle-detail-${selectedVersion._id}`}
+                      checked={selectedVersion.activePrompt || false}
+                      onChange={(e) => handleToggleActive(selectedVersion._id, e)}
+                      disabled={togglingVersionId === selectedVersion._id}
+                      style={{
+                        width: '3rem',
+                        height: '1.5rem',
+                        cursor: togglingVersionId === selectedVersion._id ? 'wait' : 'pointer',
+                        opacity: togglingVersionId === selectedVersion._id ? 0.6 : 1
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
               {versionLoading ? (
@@ -811,6 +901,65 @@ const Home = () => {
           }
         }
       `}</style>
+
+      {/* Toggle Confirmation Modal */}
+      {showToggleConfirm && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Toggle</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={cancelToggleActive}
+                  disabled={togglingVersionId !== null}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  Are you sure you want to {pendingToggleState ? 'activate' : 'deactivate'} this version?
+                  {pendingToggleState && ' This will deactivate other versions of this prompt.'}
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-link text-secondary p-0 text-decoration-none"
+                  onClick={cancelToggleActive}
+                  disabled={togglingVersionId !== null}
+                  style={{ border: 'none', background: 'none' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={confirmToggleActive}
+                  disabled={togglingVersionId !== null}
+                >
+                  {togglingVersionId ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Processing...
+                    </>
+                  ) : (
+                    'Confirm'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
