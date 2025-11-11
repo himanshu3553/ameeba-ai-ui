@@ -100,18 +100,19 @@ const Home = () => {
   }, [selectedProjectId]);
 
   // Fetch prompt details and versions when prompt is selected
-  const fetchPromptAndVersions = async () => {
-    if (selectedPromptId) {
+  const fetchPromptAndVersions = async (promptId = null) => {
+    const idToFetch = promptId || selectedPromptId;
+    if (idToFetch) {
       try {
         setVersionsLoading(true);
         // Fetch prompt details
-        const promptResponse = await promptAPI.getPrompt(selectedPromptId);
+        const promptResponse = await promptAPI.getPrompt(idToFetch);
         if (promptResponse.success) {
           setSelectedPrompt(promptResponse.data);
         }
 
         // Fetch versions
-        const versionsResponse = await promptVersionAPI.getVersions(selectedPromptId);
+        const versionsResponse = await promptVersionAPI.getVersions(idToFetch);
         if (versionsResponse.success) {
           const versionsData = versionsResponse.data || [];
           setVersions(versionsData);
@@ -278,18 +279,45 @@ const Home = () => {
 
     try {
       setCreatePromptLoading(true);
-      const response = await promptAPI.createPrompt(selectedProjectId, formData);
-      if (response.success) {
-        console.log('Prompt created successfully!', response.data);
-        setShowCreatePromptSheet(false);
-        // Refresh prompts list
-        await fetchPrompts();
-        // Auto-select the newly created prompt
-        if (response.data?._id) {
-          setSelectedPromptId(response.data._id);
+      
+      // Extract versionText from formData
+      const { versionText, ...promptData } = formData;
+      
+      // Create the prompt first
+      const promptResponse = await promptAPI.createPrompt(selectedProjectId, promptData);
+      if (!promptResponse.success) {
+        console.error('Failed to create prompt:', promptResponse.message || 'Unknown error');
+        return;
+      }
+      
+      console.log('Prompt created successfully!', promptResponse.data);
+      const newPromptId = promptResponse.data?._id;
+      
+      // Create the first version if versionText is provided
+      if (versionText && newPromptId) {
+        const versionResponse = await promptVersionAPI.createVersion(newPromptId, {
+          promptText: versionText,
+          activePrompt: true, // Set first version as active
+          isActive: true
+        });
+        
+        if (versionResponse.success) {
+          console.log('First version created successfully!', versionResponse.data);
+        } else {
+          console.error('Failed to create first version:', versionResponse.message || 'Unknown error');
         }
-      } else {
-        console.error('Failed to create prompt:', response.message || 'Unknown error');
+      }
+      
+      setShowCreatePromptSheet(false);
+      
+      // Refresh prompts list
+      await fetchPrompts();
+      
+      // Auto-select the newly created prompt and load its versions
+      if (newPromptId) {
+        setSelectedPromptId(newPromptId);
+        // Fetch prompt details and versions for the newly created prompt
+        await fetchPromptAndVersions(newPromptId);
       }
     } catch (err) {
       console.error('Failed to create prompt:', err.message || err);

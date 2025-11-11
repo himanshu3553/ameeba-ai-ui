@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 const PromptForm = ({ prompt, onSubmit, onCancel, isLoading }) => {
   const [formData, setFormData] = useState({
     name: '',
+    versionText: '',
     isActive: true,
   });
   const [errors, setErrors] = useState({});
@@ -11,7 +12,15 @@ const PromptForm = ({ prompt, onSubmit, onCancel, isLoading }) => {
     if (prompt) {
       setFormData({
         name: prompt.name || '',
+        versionText: '',
         isActive: prompt.isActive !== undefined ? prompt.isActive : true,
+      });
+    } else {
+      // Reset form for new prompt
+      setFormData({
+        name: '',
+        versionText: '',
+        isActive: true,
       });
     }
   }, [prompt]);
@@ -35,6 +44,10 @@ const PromptForm = ({ prompt, onSubmit, onCancel, isLoading }) => {
     } else if (formData.name.trim().length > 200) {
       newErrors.name = 'Prompt name must be 200 characters or less';
     }
+    // Only validate version text when creating a new prompt
+    if (!prompt && !formData.versionText.trim()) {
+      newErrors.versionText = 'Version 1 text is required';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -42,11 +55,15 @@ const PromptForm = ({ prompt, onSubmit, onCancel, isLoading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      // For new prompts, include isActive: true
+      // For new prompts, include isActive: true and versionText
       // For updates, only send name (isActive is managed by soft delete)
       const submitData = prompt 
         ? { name: formData.name }
-        : { name: formData.name, isActive: true };
+        : { 
+            name: formData.name, 
+            isActive: true,
+            versionText: formData.versionText 
+          };
       onSubmit(submitData);
     }
   };
@@ -70,6 +87,25 @@ const PromptForm = ({ prompt, onSubmit, onCancel, isLoading }) => {
         />
         {errors.name && <div className="invalid-feedback">{errors.name}</div>}
       </div>
+
+      {!prompt && (
+        <div className="mb-3">
+          <label htmlFor="versionText" className="form-label">
+            Version 1 <span className="text-danger">*</span>
+          </label>
+          <textarea
+            className={`form-control ${errors.versionText ? 'is-invalid' : ''}`}
+            id="versionText"
+            name="versionText"
+            value={formData.versionText}
+            onChange={handleChange}
+            placeholder="Enter the first version of the prompt"
+            rows={8}
+            required
+          />
+          {errors.versionText && <div className="invalid-feedback">{errors.versionText}</div>}
+        </div>
+      )}
 
       <div className="d-flex justify-content-end gap-3">
         <button type="button" className="btn btn-link text-secondary p-0 text-decoration-none" onClick={onCancel} disabled={isLoading} style={{ border: 'none', background: 'none' }}>
