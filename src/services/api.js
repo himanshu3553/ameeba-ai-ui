@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { tokenService } from './auth';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -9,12 +10,36 @@ const api = axios.create({
   },
 });
 
+// Request interceptor to add Authorization header
+api.interceptors.request.use(
+  (config) => {
+    const token = tokenService.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const message = error.response?.data?.message || error.message || 'An error occurred';
-    return Promise.reject({ message, status: error.response?.status });
+    const status = error.response?.status;
+    
+    // Handle 401 Unauthorized - token expired or invalid
+    if (status === 401) {
+      // Clear token and user data
+      tokenService.removeToken();
+      // Dispatch custom event to trigger logout in AuthContext
+      window.dispatchEvent(new CustomEvent('auth:logout'));
+    }
+    
+    return Promise.reject({ message, status });
   }
 );
 
