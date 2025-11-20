@@ -1,0 +1,149 @@
+/* Custom Primary Color Override for Bootstrap 5 */
+:root {
+  --bs-primary: #813BEA;
+  --bs-primary-rgb: 129, 59, 234;
+  --bs-primary-text-emphasis: #502594;
+  --bs-primary-bg-subtle: #f0e7fc;
+  --bs-primary-border-subtle: #e1cff9;
+}
+
+/* Override Bootstrap primary color classes */
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #813BEA;
+  --bs-btn-border-color: #813BEA;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #6d2fc7;
+  --bs-btn-hover-border-color: #6d2fc7;
+  --bs-btn-focus-shadow-rgb: 129, 59, 234;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #6d2fc7;
+  --bs-btn-active-border-color: #6d2fc7;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #813BEA;
+  --bs-btn-disabled-border-color: #813BEA;
+}
+
+.bg-primary {
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
+}
+
+.text-primary {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;
+}
+
+.border-primary {
+  --bs-border-opacity: 1;
+  border-color: rgba(var(--bs-primary-rgb), var(--bs-border-opacity)) !important;
+}
+
+/* Navbar primary background */
+.navbar-dark.bg-primary {
+  background-color: #813BEA !important;
+}
+
+/* Link primary color */
+a.text-primary:hover,
+a.text-primary:focus {
+  color: #6d2fc7 !important;
+}
+
+/* Form controls focus state */
+.form-control:focus,
+.form-select:focus {
+  border-color: #813BEA;
+  box-shadow: 0 0 0 0.25rem rgba(129, 59, 234, 0.25);
+}
+
+/* Checkbox and radio primary color */
+.form-check-input:checked {
+  background-color: #813BEA;
+  border-color: #813BEA;
+}
+
+.form-check-input:focus {
+  border-color: #813BEA;
+  box-shadow: 0 0 0 0.25rem rgba(129, 59, 234, 0.25);
+}
+
+/* Dropdown primary items */
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: #813BEA;
+}
+
+/* Pagination primary */
+.page-link {
+  color: #813BEA;
+}
+
+.page-link:hover {
+  color: #6d2fc7;
+}
+
+.page-item.active .page-link {
+  background-color: #813BEA;
+  border-color: #813BEA;
+}
+
+/* Badge primary */
+.badge.bg-primary {
+  background-color: #813BEA !important;
+}
+
+/* Alert primary */
+.alert-primary {
+  --bs-alert-color: #502594;
+  --bs-alert-bg: #f0e7fc;
+  --bs-alert-border-color: #e1cff9;
+  --bs-alert-link-color: #3d1c6f;
+}
+
+/* Progress bar primary */
+.progress-bar.bg-primary {
+  background-color: #813BEA !important;
+}
+
+/* List group primary */
+.list-group-item-primary {
+  color: #502594;
+  background-color: #f0e7fc;
+}
+
+.list-group-item-primary.list-group-item-action:hover,
+.list-group-item-primary.list-group-item-action:focus {
+  color: #502594;
+  background-color: #e1cff9;
+}
+
+.list-group-item-primary.list-group-item-action.active {
+  color: #fff;
+  background-color: #813BEA;
+  border-color: #813BEA;
+}
+
+/* Table primary */
+.table-primary {
+  --bs-table-color: #000;
+  --bs-table-bg: #f0e7fc;
+  --bs-table-border-color: #e1cff9;
+  --bs-table-striped-bg: #e6d9f8;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #e1cff9;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #e6d9f8;
+  --bs-table-hover-color: #000;
+}
+
+/* Spinner primary */
+.spinner-border-primary {
+  --bs-spinner-color: #813BEA;
+}
+
+/* Toast primary (if needed) */
+.toast.bg-primary {
+  background-color: #813BEA !important;
+}
+

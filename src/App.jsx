@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import './styles/custom.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './components/Home/Home';
 import ProjectList from './components/Project/ProjectList';
