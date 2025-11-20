@@ -528,15 +528,16 @@ const Home = () => {
                     <button
                       key={prompt._id}
                       type="button"
-                      className="list-group-item list-group-item-action border-0"
+                      className={`list-group-item list-group-item-action border-0 prompt-item-hover ${selectedPromptId === prompt._id ? 'selected' : ''}`}
                       onClick={() => handlePromptClick(prompt._id)}
                       style={{
                         cursor: 'pointer',
                         borderLeft: selectedPromptId === prompt._id ? '3px solid #6c757d' : '3px solid transparent',
-                        backgroundColor: selectedPromptId === prompt._id ? '#f8f9fa' : 'transparent',
+                        backgroundColor: selectedPromptId === prompt._id ? '#F5F0FF' : 'transparent',
                         padding: '0.75rem 1rem',
                         minHeight: '80px',
                         position: 'relative',
+                        transition: 'background-color 0.2s ease',
                       }}
                     >
                       <div className="d-flex justify-content-between align-items-center">
@@ -688,18 +689,19 @@ const Home = () => {
                         <button
                           key={version._id}
                           type="button"
-                          className="list-group-item list-group-item-action border-0"
+                          className={`list-group-item list-group-item-action border-0 version-item-hover ${selectedVersionId === version._id ? 'selected' : ''}`}
                           onClick={() => handleVersionClick(version._id)}
                           style={{
                             cursor: 'pointer',
                             borderLeft:
                               selectedVersionId === version._id ? '3px solid #6c757d' : '3px solid transparent',
-                            backgroundColor: selectedVersionId === version._id ? '#f8f9fa' : 'transparent',
+                            backgroundColor: selectedVersionId === version._id ? '#F5F0FF' : 'transparent',
                             padding: '0.75rem 1rem',
                             minHeight: '80px',
                             position: 'relative',
                             overflow: 'hidden',
                             width: '100%',
+                            transition: 'background-color 0.2s ease',
                           }}
                         >
                           <div className="d-flex justify-content-between align-items-start" style={{ width: '100%', minWidth: 0 }}>
